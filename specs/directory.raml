@@ -1,0 +1,105 @@
+#%RAML 1.0
+title: "Directory service"
+description: "The directory service API let you register and explorer all the service accessible in the G8OS GRID"
+version: 0.0.1
+mediaType: application/json
+baseUri: https://discovery.gig.tech
+
+securitySchemes:
+  itsyouonline: !include https://raw.githubusercontent.com/gig-cockpit/raml-definitions/master/securityScheme/iyo.raml
+
+resourceTypes:
+  collection: !include https://raw.githubusercontent.com/gig-cockpit/raml-definitions/master/resourceTypes/collection.raml
+  member: !include https://raw.githubusercontent.com/gig-cockpit/raml-definitions/master/resourceTypes/member.raml
+
+types:
+
+  ServiceQuality:
+    properties:
+      uptime:
+        type: integer
+        description: |
+          Uptime of the service in percent
+      downPeriods:
+        description: |
+          Last time the service was down
+        type: array
+        items:
+          properties:
+            begin:
+              type: datetime
+            duration:
+              type: integer
+              description: |
+                duration of the downtime in minute
+      averageRestaurationTime:
+        type: integer
+        description: |
+          Average number of minute before the service come back up after a problem occurs.
+
+  ReservationScheme:
+    properties:
+      unit:
+        enum: [storage, network, compute, transaction]
+      minDuration:
+        type: integer
+        description: |
+          Minimal duration of the reservation in days
+      price:
+        type: number
+        description: |
+          Price per unit
+      earlyTerminationFee:
+        type: number
+        description: |
+          Amount of the fee in case of termination of the reservation before expiration
+
+
+
+  ServiceCreate:
+    description: |
+      A service represent any service or ressource that you want to propose to the member of the grid.
+    properties:
+      Name:
+        type: string
+        pattern: ^\w+$
+      apiURL:
+        type: string
+        description: |
+          Base URL of the service API. This is trhough this API that the client of the service will communicate with
+          the service
+      reservationSchemes:
+        type: ReservationScheme[]
+        description: |
+          Describe the possible resevation that can be made for this service
+
+  Service:
+    type: ServiceCreate
+    properties:
+      id:
+        type: string
+        description: |
+          Unique identifier for the service
+      created:
+        type: datetime
+        description: |
+          Date of creation of the service
+      quality:
+        type: ServiceQuality
+        description: |
+          Information about the quality of the service
+
+
+/services:
+  type: collection
+  post:
+    securedBy: [ itsyouonline: {scopes: ["user:name"] } ]
+    description: |
+      Register a new service to the directory
+    displayName: registerService
+  /{serviceid}:
+    type: member
+    put:
+      securedBy: [ itsyouonline: {scopes: ["user:name"] } ]
+    delete:
+      securedBy: [ itsyouonline: {scopes: ["user:name"] } ]
