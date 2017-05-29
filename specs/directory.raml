@@ -206,7 +206,7 @@ types:
   type: listing
   get:
     is: [ paginated ]
-  /resource_pools:
+  /{providerid}/resource_pools:
     type: collection
     get:
       is: [ paginated, searchable ]
