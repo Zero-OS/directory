@@ -6,12 +6,53 @@ mediaType: application/json
 baseUri: https://discovery.gig.tech
 
 securitySchemes:
-  itsyouonline: !include https://raw.githubusercontent.com/gig-cockpit/raml-definitions/master/securityScheme/iyo.raml
+  itsyouonline: !include https://raw.githubusercontent.com/Jumpscale-Cockpit/raml-definitions/master/securityScheme/iyo.raml
 
 resourceTypes:
-  collection: !include https://raw.githubusercontent.com/gig-cockpit/raml-definitions/master/resourceTypes/collection.raml
-  listing: !include https://raw.githubusercontent.com/gig-cockpit/raml-definitions/master/resourceTypes/listing.raml
-  member: !include https://raw.githubusercontent.com/gig-cockpit/raml-definitions/master/resourceTypes/member.raml
+  collection: !include https://raw.githubusercontent.com/Jumpscale-Cockpit/raml-definitions/master/resourceTypes/collection.raml
+  listing: !include https://raw.githubusercontent.com/Jumpscale-Cockpit/raml-definitions/master/resourceTypes/listing.raml
+  member: !include https://raw.githubusercontent.com/Jumpscale-Cockpit/raml-definitions/master/resourceTypes/member.raml
+
+traits:
+  paginated: !include https://raw.githubusercontent.com/Jumpscale-Cockpit/raml-definitions/master/traits/pagination.raml
+  searchable:
+    queryParameters:
+      longitute:
+        type: number
+        format: float
+        description: Search by geographical coordinates, mutualy exclusive with address
+      lattitude:
+        type: number
+        format: float
+        description: Search by geographical coordinates, mutualy exclusive with address
+      address:
+        type: string
+        description: Search by address, mutualy exclusive with longitute and lattitude
+      min_cu:
+        type: integer
+        description: Filter by minimum amount of compute unit available in the pool
+      min_su:
+        type: integer
+        description: Filter by minimum amount of storage unit available in the pool
+      min_tu:
+        type: integer
+        description: Filter by minimum amount of transfer unit available in the pool
+      uptime:
+        type: number
+        format: float
+        description: Filter based on the uptime of the pool
+      network_speed:
+        type: integer
+        description: Filter based on network speed in MiB/s
+      network_redundant:
+        type: boolean
+        description: Filter based the network connection
+      currency:
+        enum: [euro, usb, hr_index]
+        description: Filter based on the currency accepted
+      datacenter_tier:
+        enum: ["1", "2", "3", "4"]
+        description: Filter based on the type of tier.
 
 types:
 
@@ -153,6 +194,9 @@ types:
   ResourcePool:
     type: ResourcePoolCreate
     properties:
+      provider:
+        type: string
+        description: ID of the provider owning this pool
       quality:
         type: PoolQuality
 
@@ -160,8 +204,12 @@ types:
 
 /providers:
   type: listing
+  get:
+    is: [ paginated ]
   /resource_pools:
     type: collection
+    get:
+      is: [ paginated, searchable ]
     post:
       securedBy: [ itsyouonline: {scopes: ["user:memberof:org"] } ]
     /{poolid}:
@@ -172,3 +220,18 @@ types:
         securedBy: [ itsyouonline: {scopes: ["user:memberof:org"] } ]
     /nodes:
       type: listing
+      get:
+        is: [ paginated ]
+/search:
+  get:
+    description: |
+      Search for resource pools.
+    is: [ paginated, searchable ]
+    queryParameters:
+      provider:
+        type: string
+        description: Filter based on the provider
+    responses:
+      200:
+        body:
+          ResourcePool
