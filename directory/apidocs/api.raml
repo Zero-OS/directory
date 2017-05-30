@@ -1,0 +1,364 @@
+#%RAML 1.0
+title: "Directory service"
+description: "The directory service API let you register and explorer all the resource pool accessible in the Zero-OS GRID"
+version: 0.0.1
+mediaType: application/json
+baseUri: https://discovery.gig.tech
+
+securitySchemes:
+  itsyouonline: 
+                description: |
+                  OAuth2 is a protocol that lets external apps request authorization to private
+                  details in a user's account without getting their password.
+                type: OAuth 2.0
+                describedBy:
+                  headers:
+                    Authorization:
+                      description: |
+                        Used to send a valid OAuth 2 access token. Do not use together with
+                        the "access_token" query string parameter.
+                  queryParameters:
+                    access_token:
+                      description: |
+                        Used to send a valid OAuth 2 access token. Do not use together with
+                        the "Authorization" header
+                  responses:
+                    404:
+                      description: Unauthorized
+                settings:
+                  authorizationUri: https://itsyou.online/v1/oauth/authorize
+                  accessTokenUri: https://itsyou.online/v1/oauth/access_token?response_type=id_token
+                  authorizationGrants: [ authorization_code, client_credentials ]
+                  scopes:
+                    - "user:admin"
+                    - "user:info"
+                    - "user:name"
+                    - "user:email"
+                    - "user:phone"
+                    - "organization:owner"
+                    - "organization:member"
+                    - "organization:info"
+                    - "organization:contracts:read"
+                    - "company:admin"
+                    - "company:read"
+                    - "company:info"
+                    - "company:contracts:read"
+                    - "contract:read"
+                    - "contract:participant"
+                    - "user:memberof:org"
+
+resourceTypes:
+  collection: 
+              #%RAML 1.0 ResourceType
+              usage: This resourceType should be used for any collection of items
+              get:
+                displayName: List<<resourcePathName | !uppercamelcase>>
+                description: List all <<resourcePathName>>
+                responses:
+                  200:
+                    body:
+                      type: <<resourcePathName | !singularize | !uppercamelcase>>[]
+              post:
+                displayName: Create<<resourcePathName | !singularize | !uppercamelcase>>
+                description: Create a new <<resourcePathName | !singularize>>
+                body:
+                  type: <<resourcePathName | !singularize | !uppercamelcase>>Create
+                responses:
+                  201:
+                    description: <<resourcePathName | !singularize>> created
+                    body:
+                      type: <<resourcePathName | !singularize | !uppercamelcase>>
+                  409:
+                    description: conflict, a <<resourcePathName | !singularize>> with this id already exists
+  member: 
+          #%RAML 1.0 ResourceType
+          usage: This resourceType should be used for any collection member
+          get:
+            displayName: Get<<resourcePathName | !singularize | !uppercamelcase>>
+            description: Get detail view about <<resourcePathName | !singularize>>
+            responses:
+              200:
+                body:
+                  type: <<resourcePathName | !singularize | !uppercamelcase>>
+              404:
+                description: <<resourcePathName | !singularize>> not found
+          put:
+            displayName: Update<<resourcePathName | !singularize | !uppercamelcase>>
+            description: Update <<resourcePathName | !singularize>>
+            responses:
+              200:
+                body:
+                  type: <<resourcePathName | !singularize | !uppercamelcase>>
+              404:
+                description: <<resourcePathName | !singularize>> not found
+          delete:
+            displayName: Delete<<resourcePathName | !singularize | !uppercamelcase>>
+            description: Delete <<resourcePathName | !singularize>>
+            responses:
+              204:
+                description: <<resourcePathName | !singularize>> deleted successfully
+              404:
+                description: <<resourcePathName | !singularize>> not found
+  listing: 
+           #%RAML 1.0 ResourceType
+           usage: This resourceType should be used for any collection of items that only supports listing
+           get:
+             displayName: List<<resourcePathName | !uppercamelcase>>
+             description: List all <<resourcePathName>>
+             responses:
+               200:
+                 body:
+                   type: <<resourcePathName | !singularize | !uppercamelcase>>[]
+
+traits:
+  paginated: 
+             #%RAML 1.0 traits
+             usage: Apply on ressources that supports pagination
+             
+             queryParameters:
+               page:
+                 type: integer
+                 description: number of the page to return
+               per_page:
+                 type: integer
+                 description: Specify how many item you want to receive in the response.
+                 maximum: 100
+                 minimum: 1
+                 default: 30
+                 multipleOf: 1
+             responses:
+               200:
+                 headers:
+                   page-first:
+                     type: string
+                     description: Link to the first page of this ressource.
+                   page-last:
+                     type: string
+                     description: Link to the last page of this ressource.
+                   page-prev:
+                     type: string
+                     description: Link to the previous page of this ressource. Null when the request is already the first page
+                   page-next:
+                     type: string
+                     description: Link to the next page of this ressource. Null when the request is already the last page
+  searchable:
+    queryParameters:
+      longitute:
+        type: number
+        format: float
+        description: Search by geographical coordinates, mutualy exclusive with address
+      lattitude:
+        type: number
+        format: float
+        description: Search by geographical coordinates, mutualy exclusive with address
+      address:
+        type: string
+        description: Search by address, mutualy exclusive with longitute and lattitude
+      min_cu:
+        type: integer
+        description: Filter by minimum amount of compute unit available in the pool
+      min_su:
+        type: integer
+        description: Filter by minimum amount of storage unit available in the pool
+      min_tu:
+        type: integer
+        description: Filter by minimum amount of transfer unit available in the pool
+      uptime:
+        type: number
+        format: float
+        description: Filter based on the uptime of the pool
+      network_speed:
+        type: integer
+        description: Filter based on network speed in MiB/s
+      network_redundant:
+        type: boolean
+        description: Filter based the network connection
+      currency:
+        enum: [euro, usb, hr_index]
+        description: Filter based on the currency accepted
+      datacenter_tier:
+        enum: ["1", "2", "3", "4"]
+        description: Filter based on the type of tier.
+
+types:
+
+  Provider:
+    properties:
+      name:
+        type: string
+        pattern: ^\w+$
+      description:
+        type: string
+      website_url:
+        type: string
+      email:
+        type: string
+        # pattern: TODO
+      telephone:
+        type: string
+        # pattern: TODO
+
+  Pricing:
+    properties:
+      min_nr_months:
+        type: integer
+      cu:
+        type: integer
+        description: Compute Unit
+      su:
+        type: integer
+        description: Storage Unit
+      tu:
+        type: integer
+        description: Transfer Unit
+
+  Location:
+    properties:
+      name:
+        type: string
+        pattern: ^\w+$
+      description:
+        type: string
+      remarks:
+        type: string
+      longitute:
+        type: number
+        format: float
+      lattitude:
+        type: number
+        format: float
+      address:
+        type: string
+        #pattern: TODO
+
+  Node:
+    properties:
+      uid:
+        type: string
+        pattern: ^\w+$
+        description: gloal unique ID
+      description:
+        type: string
+      remarks:
+        type: string
+      nr_cu:
+        type: integer
+        description: Amount of compute unit available in the node
+      nr_su:
+        type: integer
+        description: Amount of storage unit available in the node
+      nr_tu:
+        type: integer
+        description: Amount of transfer unit available in the node
+
+  DownPeriod:
+    properties:
+      begin:
+        type: datetime
+      duration:
+        type: integer
+        description: |
+          duration of the downtime in minute
+
+  PoolQuality:
+    properties:
+      uptime:
+        type: integer
+        description: |
+          Uptime of the service in percent
+      down_periods:
+        description: |
+          Last time the service was down
+        type: DownPeriod[]
+      average_restauration_time:
+        type: integer
+        description: |
+          Average number of minute before the service come back up after a problem occurs.
+
+  ResourcePoolCreate:
+    properties:
+      network_speed:
+        type: integer
+        description: Network speed in MiB/s
+      network_redundant:
+        type: boolean
+        description: If the network connection is redundant or not
+      ipv4_nr_pub:
+        type: integer
+        description: Number of public IPv4 addresses
+      ipv4_nr_enabled:
+        type: boolean
+      ipv6_nr_enabled:
+        type: boolean
+      pricing_currency:
+        enum: [euro, usb, hr_index]
+      datacenter_tier:
+        enum: ["1", "2", "3", "4"]
+        description: See tier definitions #TODO put link
+      datacenter_uptime_sla_min:
+        type: number
+        format: float
+        description: uptime guaranteed per month
+      cu_planned:
+        type: integer
+        description: Amount of compute unit that will eventually be added to this pool
+      su_planned:
+        type: integer
+        description: Amount of storage unit that will eventually be added to this pool
+      tu_planned:
+        type: integer
+        description: Amount of transfer unit that will eventually be added to this pool
+      cu_max:
+        type: integer
+        description: Amount of compute unit maximum this pool will ever reach
+      su_max:
+        type: integer
+        description: Amount of storage unit this pool will ever reach
+      tu_max:
+        type: integer
+        description: Amount of transfer unit this pool will ever reach
+
+  ResourcePool:
+    type: ResourcePoolCreate
+    properties:
+      provider:
+        type: string
+        description: ID of the provider owning this pool
+      quality:
+        type: PoolQuality
+
+
+
+/providers:
+  type: listing
+  get:
+    is: [ paginated ]
+  /{providerid}/resource_pools:
+    type: collection
+    get:
+      is: [ paginated, searchable ]
+    post:
+      securedBy: [ itsyouonline: {scopes: ["user:memberof:org"] } ]
+    /{poolid}:
+      type: member
+      delete:
+        securedBy: [ itsyouonline: {scopes: ["user:memberof:org"] } ]
+      put:
+        securedBy: [ itsyouonline: {scopes: ["user:memberof:org"] } ]
+    /nodes:
+      type: listing
+      get:
+        is: [ paginated ]
+/search:
+  get:
+    description: |
+      Search for resource pools.
+    is: [ paginated, searchable ]
+    queryParameters:
+      provider:
+        type: string
+        description: Filter based on the provider
+    responses:
+      200:
+        body:
+          type: ResourcePool
