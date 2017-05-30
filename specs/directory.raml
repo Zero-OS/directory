@@ -10,8 +10,8 @@ securitySchemes:
 
 resourceTypes:
   collection: !include https://raw.githubusercontent.com/Jumpscale-Cockpit/raml-definitions/master/resourceTypes/collection.raml
-  listing: !include https://raw.githubusercontent.com/Jumpscale-Cockpit/raml-definitions/master/resourceTypes/listing.raml
   member: !include https://raw.githubusercontent.com/Jumpscale-Cockpit/raml-definitions/master/resourceTypes/member.raml
+  listing: !include https://raw.githubusercontent.com/Jumpscale-Cockpit/raml-definitions/master/resourceTypes/listing.raml
 
 traits:
   paginated: !include https://raw.githubusercontent.com/Jumpscale-Cockpit/raml-definitions/master/traits/pagination.raml
@@ -125,6 +125,15 @@ types:
         type: integer
         description: Amount of transfer unit available in the node
 
+  DownPeriod:
+    properties:
+      begin:
+        type: datetime
+      duration:
+        type: integer
+        description: |
+          duration of the downtime in minute
+
   PoolQuality:
     properties:
       uptime:
@@ -134,15 +143,7 @@ types:
       down_periods:
         description: |
           Last time the service was down
-        type: array
-        items:
-          properties:
-            begin:
-              type: datetime
-            duration:
-              type: integer
-              description: |
-                duration of the downtime in minute
+        type: DownPeriod[]
       average_restauration_time:
         type: integer
         description: |
@@ -234,4 +235,4 @@ types:
     responses:
       200:
         body:
-          ResourcePool
+          type: ResourcePool
