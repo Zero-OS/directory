@@ -1,4 +1,5 @@
 # Directory API
+[![Build Status](https://travis-ci.org/zero-os/0-directory.svg?branch=master)](https://travis-ci.org/zero-os/0-directory)
 
 This directory service is the door step of the Zero-OS grid.
 
