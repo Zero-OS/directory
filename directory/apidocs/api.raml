@@ -6,141 +6,15 @@ mediaType: application/json
 baseUri: https://discovery.gig.tech
 
 securitySchemes:
-  itsyouonline: 
-                description: |
-                  OAuth2 is a protocol that lets external apps request authorization to private
-                  details in a user's account without getting their password.
-                type: OAuth 2.0
-                describedBy:
-                  headers:
-                    Authorization:
-                      description: |
-                        Used to send a valid OAuth 2 access token. Do not use together with
-                        the "access_token" query string parameter.
-                  queryParameters:
-                    access_token:
-                      description: |
-                        Used to send a valid OAuth 2 access token. Do not use together with
-                        the "Authorization" header
-                  responses:
-                    404:
-                      description: Unauthorized
-                settings:
-                  authorizationUri: https://itsyou.online/v1/oauth/authorize
-                  accessTokenUri: https://itsyou.online/v1/oauth/access_token?response_type=id_token
-                  authorizationGrants: [ authorization_code, client_credentials ]
-                  scopes:
-                    - "user:admin"
-                    - "user:info"
-                    - "user:name"
-                    - "user:email"
-                    - "user:phone"
-                    - "organization:owner"
-                    - "organization:member"
-                    - "organization:info"
-                    - "organization:contracts:read"
-                    - "company:admin"
-                    - "company:read"
-                    - "company:info"
-                    - "company:contracts:read"
-                    - "contract:read"
-                    - "contract:participant"
-                    - "user:memberof:org"
+  itsyouonline: !include https://raw.githubusercontent.com/Jumpscale-Cockpit/raml-definitions/master/securityScheme/iyo.raml
 
 resourceTypes:
-  collection: 
-              #%RAML 1.0 ResourceType
-              usage: This resourceType should be used for any collection of items
-              get:
-                displayName: List<<resourcePathName | !uppercamelcase>>
-                description: List all <<resourcePathName>>
-                responses:
-                  200:
-                    body:
-                      type: <<resourcePathName | !singularize | !uppercamelcase>>[]
-              post:
-                displayName: Create<<resourcePathName | !singularize | !uppercamelcase>>
-                description: Create a new <<resourcePathName | !singularize>>
-                body:
-                  type: <<resourcePathName | !singularize | !uppercamelcase>>Create
-                responses:
-                  201:
-                    description: <<resourcePathName | !singularize>> created
-                    body:
-                      type: <<resourcePathName | !singularize | !uppercamelcase>>
-                  409:
-                    description: conflict, a <<resourcePathName | !singularize>> with this id already exists
-  member: 
-          #%RAML 1.0 ResourceType
-          usage: This resourceType should be used for any collection member
-          get:
-            displayName: Get<<resourcePathName | !singularize | !uppercamelcase>>
-            description: Get detail view about <<resourcePathName | !singularize>>
-            responses:
-              200:
-                body:
-                  type: <<resourcePathName | !singularize | !uppercamelcase>>
-              404:
-                description: <<resourcePathName | !singularize>> not found
-          put:
-            displayName: Update<<resourcePathName | !singularize | !uppercamelcase>>
-            description: Update <<resourcePathName | !singularize>>
-            responses:
-              200:
-                body:
-                  type: <<resourcePathName | !singularize | !uppercamelcase>>
-              404:
-                description: <<resourcePathName | !singularize>> not found
-          delete:
-            displayName: Delete<<resourcePathName | !singularize | !uppercamelcase>>
-            description: Delete <<resourcePathName | !singularize>>
-            responses:
-              204:
-                description: <<resourcePathName | !singularize>> deleted successfully
-              404:
-                description: <<resourcePathName | !singularize>> not found
-  listing: 
-           #%RAML 1.0 ResourceType
-           usage: This resourceType should be used for any collection of items that only supports listing
-           get:
-             displayName: List<<resourcePathName | !uppercamelcase>>
-             description: List all <<resourcePathName>>
-             responses:
-               200:
-                 body:
-                   type: <<resourcePathName | !singularize | !uppercamelcase>>[]
+  collection: !include https://raw.githubusercontent.com/Jumpscale-Cockpit/raml-definitions/master/resourceTypes/collection.raml
+  member: !include https://raw.githubusercontent.com/Jumpscale-Cockpit/raml-definitions/master/resourceTypes/member.raml
+  listing: !include https://raw.githubusercontent.com/Jumpscale-Cockpit/raml-definitions/master/resourceTypes/listing.raml
 
 traits:
-  paginated: 
-             #%RAML 1.0 traits
-             usage: Apply on ressources that supports pagination
-             
-             queryParameters:
-               page:
-                 type: integer
-                 description: number of the page to return
-               per_page:
-                 type: integer
-                 description: Specify how many item you want to receive in the response.
-                 maximum: 100
-                 minimum: 1
-                 default: 30
-                 multipleOf: 1
-             responses:
-               200:
-                 headers:
-                   page-first:
-                     type: string
-                     description: Link to the first page of this ressource.
-                   page-last:
-                     type: string
-                     description: Link to the last page of this ressource.
-                   page-prev:
-                     type: string
-                     description: Link to the previous page of this ressource. Null when the request is already the first page
-                   page-next:
-                     type: string
-                     description: Link to the next page of this ressource. Null when the request is already the last page
+  paginated: !include https://raw.githubusercontent.com/Jumpscale-Cockpit/raml-definitions/master/traits/pagination.raml
   searchable:
     queryParameters:
       longitute:
@@ -321,6 +195,12 @@ types:
   ResourcePool:
     type: ResourcePoolCreate
     properties:
+      UID:
+        type: string
+        description: Uniq ID of the pool
+      organization:
+        type: string
+        description: ItYou.online organization owning this pool
       provider:
         type: string
         description: ID of the provider owning this pool
@@ -333,7 +213,7 @@ types:
   type: listing
   get:
     is: [ paginated ]
-  /{providerid}/resource_pools:
+  /resource_pools:
     type: collection
     get:
       is: [ paginated, searchable ]
