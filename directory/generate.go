@@ -1,0 +1,3 @@
+//go:generate  go-bindata -debug -o routes/bindata.go -pkg routes -prefix static static/...
+
+package main

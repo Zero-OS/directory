@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	log "github.com/Sirupsen/logrus"
+	assetfs "github.com/elazarl/go-bindata-assetfs"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/zero-os/0-directory/directory/api"
@@ -17,7 +18,7 @@ func loggingMiddleware(h http.Handler) http.Handler {
 }
 
 func GetRouter(p api.ProvidersInterface, s api.SearchInterface) http.Handler {
-	r := mux.NewRouter().StrictSlash(true)
+	r := mux.NewRouter()
 
 	api.ProvidersInterfaceRoutes(r, p)
 	api.SearchInterfaceRoutes(r, s)
@@ -25,13 +26,13 @@ func GetRouter(p api.ProvidersInterface, s api.SearchInterface) http.Handler {
 	pool.InitModels()
 	provider.InitModels()
 
-	// home page
-	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "index.html")
-	})
-
-	// apidocs
-	r.PathPrefix("/apidocs/").Handler(http.StripPrefix("/apidocs/", http.FileServer(http.Dir("./apidocs/"))))
+	// home page and apiconsole
+	r.PathPrefix("/").Handler(http.FileServer(
+		&assetfs.AssetFS{Asset: Asset,
+			AssetDir:  AssetDir,
+			AssetInfo: AssetInfo,
+			Prefix:    "",
+		}))
 
 	// Add middlewares
 	router := NewRouter(r)
