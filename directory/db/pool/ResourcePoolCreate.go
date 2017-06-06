@@ -19,8 +19,8 @@ type ResourcePoolCreate struct {
 	Su_planned                int                                    `json:"su_planned" validate:"nonzero"`
 	Tu_max                    int                                    `json:"tu_max" validate:"nonzero"`
 	Tu_planned                int                                    `json:"tu_planned" validate:"nonzero"`
-	Pricings                  []Pricing                              `json:pricings validate:"nonzero"`
-	Nodes                     []Node                                 `json:"nodes" validate:"nonzero"`
+	Pricings                  []*Pricing                             `json:pricings validate:"nonzero"`
+	Nodes                     []*Node                                `json:"nodes" validate:"nonzero"`
 	Location                  Location                               `json:"Location"`
 }
 

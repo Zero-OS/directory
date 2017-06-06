@@ -11,8 +11,8 @@ import (
 // ListProviders is the handler for GET /providers
 // List all providers
 func (api ProvidersAPI) ListProviders(w http.ResponseWriter, r *http.Request) {
-	// page := req.FormValue("page")
-	// per_page := req.FormValue("per_page")
+	// page := r.FormValue("page")
+	// per_page := r.FormValue("per_page")
 
 	mgr := provider.NewManager(r)
 	providers, err := mgr.List()

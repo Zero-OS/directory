@@ -11,8 +11,8 @@ import (
 // ListResourcePools is the handler for GET /providers/{providerid}/resource_pools
 func (api ProvidersAPI) ListResourcePools(w http.ResponseWriter, r *http.Request) {
 	mgr := pool.NewManager(r)
-
-	pools, err := mgr.List()
+	r.ParseForm()
+	pools, err := mgr.List(pool.NewPoolQuery(r.Form))
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error listing the resource pools :%v", err), http.StatusInternalServerError)
 	}

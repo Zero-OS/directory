@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/zero-os/0-directory/directory/db/pool"
@@ -9,7 +10,16 @@ import (
 
 // Get is the handler for GET /search
 // Search for resource pools.
-func (api SearchAPI) Get(w http.ResponseWriter, r *http.Request) { // address := req.FormValue("address")// currency := req.FormValue("currency")// datacenter_tier := req.FormValue("datacenter_tier")// lattitude := req.FormValue("lattitude")// longitute := req.FormValue("longitute")// min_cu := req.FormValue("min_cu")// min_su := req.FormValue("min_su")// min_tu := req.FormValue("min_tu")// network_redundant := req.FormValue("network_redundant")// network_speed := req.FormValue("network_speed")// page := req.FormValue("page")// per_page := req.FormValue("per_page")// provider := req.FormValue("provider")// uptime := req.FormValue("uptime")
-	var respBody pool.ResourcePool
-	json.NewEncoder(w).Encode(&respBody)
+func (api SearchAPI) Get(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+
+	mgr := pool.NewManager(r)
+
+	pools, err := mgr.List(pool.NewPoolQuery(r.Form))
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error listing the resource pools :%v", err), http.StatusInternalServerError)
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(&pools)
 }
