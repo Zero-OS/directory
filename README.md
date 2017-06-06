@@ -3,7 +3,7 @@
 
 This directory service is the door step of the Zero-OS grid.
 
-[API specification](https://htmlpreviewer.github.io/?../../../specs/directory.html)
+[API specification](https://htmlpreviewer.github.io/?../../../../specs/directory.html)
 
 ## Release schedule:
 - 2 June 2017:  [v0.1.0](milestones/0.1.0.md):
