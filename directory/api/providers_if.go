@@ -36,7 +36,7 @@ type ProvidersInterface interface { // ListNodes is the handler for GET /provide
 
 // ProvidersInterfaceRoutes is routing for /providers root endpoint
 func ProvidersInterfaceRoutes(r *mux.Router, i ProvidersInterface) {
-	r.HandleFunc("/providers/resource_pools/nodes", i.ListNodes).Methods("GET")
+	r.HandleFunc("/providers/resource_pools/{poolid}/nodes", i.ListNodes).Methods("GET")
 	r.Handle("/providers/resource_pools/{poolid}", alice.New(NewOauth2itsyouonlineMiddleware([]string{"user:name"}).Handler).Then(http.HandlerFunc(i.DeletePool))).Methods("DELETE")
 	r.HandleFunc("/providers/resource_pools/{poolid}", i.GetPool).Methods("GET")
 	r.Handle("/providers/resource_pools/{poolid}", alice.New(NewOauth2itsyouonlineMiddleware([]string{"user:name"}).Handler).Then(http.HandlerFunc(i.UpdatePoolid))).Methods("PUT")

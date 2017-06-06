@@ -233,10 +233,10 @@ types:
         securedBy: [ itsyouonline: {scopes: ["user:memberof:org"] } ]
       put:
         securedBy: [ itsyouonline: {scopes: ["user:memberof:org"] } ]
-    /nodes:
-      type: listing
-      get:
-        is: [ paginated ]
+      /nodes:
+        type: listing
+        get:
+          is: [ paginated ]
 /search:
   get:
     description: |

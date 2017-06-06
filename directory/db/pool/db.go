@@ -56,6 +56,14 @@ func (m *Manager) List() ([]*ResourcePool, error) {
 	return result, err
 }
 
+func (m *Manager) ListNodes(poolID string) ([]*Node, error) {
+	result := &ResourcePool{}
+	//FIXME: This doesn't work for some reason, can't understand why
+	// err := m.collection.FindId(bson.ObjectIdHex(poolID)).Select(bson.M{"resourcepoolcreate.nodes": 1}).All(&result)
+	err := m.collection.FindId(bson.ObjectIdHex(poolID)).One(&result)
+	return result.Nodes, err
+}
+
 func (m *Manager) Get(id string) (pool *ResourcePool, err error) {
 	err = m.collection.FindId(bson.ObjectIdHex(id)).One(&pool)
 	return
