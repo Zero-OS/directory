@@ -7,7 +7,7 @@ import (
 
 type ResourcePool struct {
 	ResourcePoolCreate
-	UID          bson.ObjectId `json:"UID" validate:"nonzero" bson:"_id"`
+	UID          bson.ObjectId `json:"UID" validate:"nonzero" bson:"_id,omitempty"`
 	Organization string        `json:"organization" validate:"nonzero"`
 	Provider     string        `json:"provider" validate:"nonzero"`
 	Quality      PoolQuality   `json:"quality" validate:"nonzero"`

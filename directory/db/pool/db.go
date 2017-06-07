@@ -26,6 +26,11 @@ func InitModels() {
 	}
 
 	db.EnsureIndex(COLLECTION_POOL, index)
+
+	index = mgo.Index{
+		Key: []string{"$2dsphere:resourcepoolcreate.location.geoloc"},
+	}
+	db.EnsureIndex(COLLECTION_POOL, index)
 }
 
 type Manager struct {
@@ -49,6 +54,12 @@ func NewManager(r *http.Request) *Manager {
 func (m *Manager) Create(pool *ResourcePool) error {
 	pool.UID = bson.NewObjectId()
 	log.Debugln("uid", pool.UID)
+
+	pool.Location.Geoloc.Type = "Point"
+	pool.Location.Geoloc.Coordinates = []float64{
+		pool.Location.Longitute,
+		pool.Location.Latitude,
+	}
 
 	return m.collection.Insert(pool)
 }
@@ -79,6 +90,12 @@ func (m *Manager) Get(id string) (pool *ResourcePool, err error) {
 }
 
 func (m *Manager) Update(pool *ResourcePool) (err error) {
+	pool.Location.Geoloc.Type = "Point"
+	pool.Location.Geoloc.Coordinates = []float64{
+		pool.Location.Longitute,
+		pool.Location.Latitude,
+	}
+
 	return m.collection.UpdateId(pool.UID, pool)
 }
 
@@ -95,13 +112,38 @@ func NewPoolQuery(values url.Values) PoolQuery {
 }
 
 func (pq *PoolQuery) query() (bson.M, error) {
+	log.Debugln(pq.values)
 	q := bson.M{}
+
 	for k, v := range pq.values {
+		log.Debugln(k)
 		switch k {
 		case "provider":
 			q[k] = v[0]
-		case "longitute", "latitute", "address":
+		case "address":
 			q[fmt.Sprintf("resourcepoolcreate.%s", k)] = v[0]
+		case "longitude", "latitude":
+			longitude, err := strconv.ParseFloat(pq.values.Get("longitude"), 64)
+			if err != nil {
+				return nil, err
+			}
+			latitude, err := strconv.ParseFloat(pq.values.Get("latitude"), 64)
+			if err != nil {
+				return nil, err
+			}
+
+			q["resourcepoolcreate.location.geoloc"] = bson.M{
+				"$nearSphere": bson.M{
+					"$geometry": bson.M{
+						"type": "point",
+						"coordinates": []float64{
+							longitude,
+							latitude,
+						},
+						"$minDistance": 0,
+					},
+				},
+			}
 		case "currency":
 			q["resourcepoolcreate.pricing_currency"] = v[0]
 		case "min_cu", "min_su", "min_tu", "uptime", "network_speed":
