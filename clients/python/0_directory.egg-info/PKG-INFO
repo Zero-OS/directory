@@ -1,0 +1,11 @@
+Metadata-Version: 1.0
+Name: 0-directory
+Version: 0.0.1
+Summary: Zero-OS Directory
+Home-page: https://github.com/zero-os/0-directory
+Author: Christophe de Carvalho
+Author-email: christophe@gig.tech
+License: Apache 2.0
+Description: # Python Client
+        
+Platform: UNKNOWN
