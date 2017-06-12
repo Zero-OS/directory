@@ -26,9 +26,8 @@ func main() {
 	// Set log output to stdout so we can pipe it
 	log.SetOutput(os.Stdout)
 
-	var debugLogging, ignoreDevcert bool
+	var debugLogging bool
 	var bindAddress, dbConnectionString string
-	var tlsCert, tlsKey string
 
 	app.Flags = []cli.Flag{
 		cli.BoolFlag{
@@ -47,23 +46,6 @@ func main() {
 			Usage:       "Mongodb connection string",
 			Value:       "127.0.0.1:27017",
 			Destination: &dbConnectionString,
-		},
-		cli.StringFlag{
-			Name:        "cert, s",
-			Usage:       "TLS certificate path",
-			Value:       "",
-			Destination: &tlsCert,
-		},
-		cli.StringFlag{
-			Name:        "key, k",
-			Usage:       "TLS private key path",
-			Value:       "",
-			Destination: &tlsKey,
-		},
-		cli.BoolFlag{
-			Name:        "ignore-devcert, i",
-			Usage:       "Ignore default devcert even if exists",
-			Destination: &ignoreDevcert,
 		},
 	}
 
