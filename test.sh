@@ -2,6 +2,7 @@
 set -e
 pushd directory
     echo "Run tests"
+    go generate
     go get ./...
     bash ../codecov.sh
 popd
