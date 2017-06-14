@@ -45,7 +45,7 @@ This command will start the directory server listening on all interface on the 8
 ## [API specification](https://rawgit.com/zero-os/0-directory/master/specs/directory.html)
 
 ## Release schedule:
-- 12 June 2017:  [v0.1.0](milestones/0.1.0.md):  
+- 17 June 2017:  [v0.1.0](milestones/0.1.0.md):  
 First usable version, beta state
 - 19 June 2017:  [v0.2.0](milestones/0.2.0.md):  
 All tested and documented
