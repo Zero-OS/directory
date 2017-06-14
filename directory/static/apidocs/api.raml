@@ -98,7 +98,7 @@ types:
       longitute:
         type: number
         format: float
-      latitude:
+      lattitude:
         type: number
         format: float
       address:
@@ -160,9 +160,9 @@ types:
       ipv4_nr_pub:
         type: integer
         description: Number of public IPv4 addresses
-      ipv4_enabled:
+      ipv4_nr_enabled:
         type: boolean
-      ipv6_enabled:
+      ipv6_nr_enabled:
         type: boolean
       pricing_currency:
         enum: [euro, usb, hr_index]
@@ -191,14 +191,6 @@ types:
       tu_max:
         type: integer
         description: Amount of transfer unit this pool will ever reach
-      Pricings:
-        type: Pricing[]
-      Nodes:
-        type: Node[]
-        description: List of all node part of this pool
-      Location:
-        type: Location
-        description: Location of the pool
 
   ResourcePool:
     type: ResourcePoolCreate
@@ -233,10 +225,10 @@ types:
         securedBy: [ itsyouonline: {scopes: ["user:memberof:org"] } ]
       put:
         securedBy: [ itsyouonline: {scopes: ["user:memberof:org"] } ]
-      /nodes:
-        type: listing
-        get:
-          is: [ paginated ]
+    /nodes:
+      type: listing
+      get:
+        is: [ paginated ]
 /search:
   get:
     description: |
