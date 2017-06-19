@@ -4,6 +4,13 @@
 This directory service is the door step of the Zero-OS grid.
 
 ## How to build
+
+Install [go-bindata](https://github.com/jteeuwen/go-bindata)
+```shell
+go get -u github.com/jteeuwen/go-bindata/...
+```
+
+Build 
 ```shell
 cd $GOPATH/src/github.com/zero-os/
 git clone https://github.com/zero-os/0-directory.git
